@@ -1,0 +1,12 @@
+# Server configurations
+service:
+  port: 7090
+  host: 0.0.0.0
+
+#Database
+database:
+  pubKey: pkeydb.json
+
+#Server
+server:
+  nats: "nats://demo.nats.io"
