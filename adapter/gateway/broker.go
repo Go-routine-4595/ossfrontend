@@ -113,33 +113,33 @@ func (b *Broker) DeleteRoutersRequest(r []domain.Router, tenant string) error {
 	return nil
 }
 
-func (b *Broker) GetRoutersPage(paginationByte []byte, tenant string) ([]domain.Router, error) {
+func (b *Broker) GetRoutersPage(paginationByte []byte, tenant string) (domain.Response, error) {
 	var (
-		err     error
-		routers []domain.Router
-		msg     *nats.Msg
-		m       message
-		d       []byte
+		err      error
+		msg      *nats.Msg
+		m        message
+		d        []byte
+		response domain.Response
 	)
 
 	m.Mtype = messageGetPaged
 	m.Data = paginationByte
 	d, err = json.Marshal(m)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
 	msg, err = b.con.Request(subjectRouter, d, time.Duration(time.Millisecond*timeout))
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
-	err = json.Unmarshal(msg.Data, &routers)
+	err = json.Unmarshal(msg.Data, &response)
 	if err != nil {
-		return nil, err
+		return response, err
 	}
 
-	return routers, nil
+	return response, nil
 }
 
 func (b *Broker) GetRouters(r domain.Router, tenant string) (domain.Router, error) {

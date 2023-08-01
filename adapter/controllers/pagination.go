@@ -7,7 +7,7 @@ import (
 
 const (
 	defaultPageLimit = 100
-	defaultStartPage = 1
+	defaultStartPage = 0
 	defaultSort      = ""
 )
 

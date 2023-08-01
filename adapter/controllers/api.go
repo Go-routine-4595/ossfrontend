@@ -16,7 +16,7 @@ const (
 type IService interface {
 	CreateRouters(ctx context.Context, r []domain.Router, tenant string) ([]byte, error)
 	DeleteRouters(ctx context.Context, r []domain.Router, tenant string) error
-	GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) ([]domain.Router, error)
+	GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) (domain.Response, error)
 	GetRouters(ctx context.Context, r domain.Router, tenant string) (domain.Router, error)
 }
 

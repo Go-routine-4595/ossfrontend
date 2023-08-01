@@ -22,7 +22,7 @@ import (
 type IService interface {
 	CreateRouters(ctx context.Context, r []domain.Router, tenant string) ([]byte, error)
 	DeleteRouters(ctx context.Context, r []domain.Router, tenant string) error
-	GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) ([]domain.Router, error)
+	GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) (domain.Response, error)
 	GetRouters(ctx context.Context, r domain.Router, tenant string) (domain.Router, error)
 }
 
@@ -85,16 +85,16 @@ func (s *LoggingService) DeleteRouters(ctx context.Context, r []domain.Router, t
 	return s.next.DeleteRouters(ctx, r, tenant)
 }
 
-func (s *LoggingService) GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) (rep []domain.Router, err error) {
+func (s *LoggingService) GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) (rep domain.Response, err error) {
 
 	defer func(start time.Time) {
 		var str string
 		var sreq string
 		if rep != nil {
-			if len(rep) < 5 {
-				str = fmt.Sprintf("%v", rep)
+			if len(rep.Routers) < 5 {
+				str = fmt.Sprintf("%+v", rep)
 			} else {
-				str = fmt.Sprintf("%v", rep)
+				str = fmt.Sprintf("%+v routers, last: %d", len(rep.Routers), rep.Last)
 			}
 		}
 

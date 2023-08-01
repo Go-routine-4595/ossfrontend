@@ -8,7 +8,7 @@ import (
 type Broker interface {
 	CreateRoutersRequest(r []domain.Router, tenant string) ([]byte, error)
 	DeleteRoutersRequest(r []domain.Router, tenant string) error
-	GetRoutersPage(paginationByte []byte, tenant string) ([]domain.Router, error)
+	GetRoutersPage(paginationByte []byte, tenant string) (domain.Response, error)
 	GetRouters(r domain.Router, tenant string) (domain.Router, error)
 }
 
@@ -33,7 +33,7 @@ func (s *Service) DeleteRouters(ctx context.Context, r []domain.Router, tenant s
 	return s.broker.DeleteRoutersRequest(r, tenant)
 }
 
-func (s *Service) GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) ([]domain.Router, error) {
+func (s *Service) GetRoutersPage(ctx context.Context, paginationByte []byte, tenant string) (domain.Response, error) {
 	return s.broker.GetRoutersPage(paginationByte, tenant)
 }
 

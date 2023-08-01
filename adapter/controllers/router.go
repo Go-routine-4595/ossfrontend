@@ -10,7 +10,22 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strconv"
 )
+
+// for Paged request
+
+type Records struct {
+	R map[string][]domain.Router
+}
+
+type Links struct {
+	Self     string `json:"self"`
+	Previous string `json:"previous"`
+	Next     string `json:"next"`
+	First    string `json:"first"`
+	Last     string `json:"last"`
+}
 
 // CreateRoutersFromFile create a router the details of the router is in the body
 // clients SHOULD NOT transmit PII (Personal Identification Information) parameters in the URL
@@ -241,12 +256,13 @@ func (a *ApiServer) DeleteRouters(c *gin.Context) {
 func (a *ApiServer) GetRouters(c *gin.Context) {
 
 	var (
-		page    Pagination
-		b       []byte
-		routers []domain.Router
-		err     error
-		tenant  string
-		query   url.Values
+		page   Pagination
+		b      []byte
+		r      domain.Response
+		err    error
+		tenant string
+		query  url.Values
+		links  Links
 	)
 
 	tenant = c.Value("tenant").(string)
@@ -261,8 +277,26 @@ func (a *ApiServer) GetRouters(c *gin.Context) {
 			return
 		}
 
-		routers, err = a.next.GetRoutersPage(a.ctx, b, tenant)
-		c.JSON(http.StatusOK, routers)
+		r, err = a.next.GetRoutersPage(a.ctx, b, tenant)
+
+		links.First = "0"
+		links.Last = strconv.Itoa(r.Last)
+		links.Self = strconv.Itoa(page.Page)
+		if page.Page == 0 {
+			links.Previous = strconv.Itoa(page.Page)
+		} else {
+			links.Previous = strconv.Itoa(page.Page - 1)
+		}
+		if page.Page == r.Last {
+			links.Next = strconv.Itoa(page.Page)
+		} else {
+			links.Next = strconv.Itoa(page.Page + 1)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"records":  r.Routers,
+			"metadata": links,
+		})
 		return
 	}
 	if query.Has("id") {
