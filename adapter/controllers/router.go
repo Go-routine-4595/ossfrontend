@@ -13,12 +13,11 @@ import (
 	"strconv"
 )
 
+const (
+	createRouterKey = "router"
+)
+
 // for Paged request
-
-type Records struct {
-	R map[string][]domain.Router
-}
-
 type Links struct {
 	Self     string `json:"self"`
 	Previous string `json:"previous"`
@@ -106,6 +105,7 @@ func (a *ApiServer) CreateRouters(c *gin.Context) {
 		tenant  string
 		res     []byte
 		form    *multipart.Form
+		items   []string
 	)
 
 	form, _ = c.MultipartForm()
@@ -120,11 +120,9 @@ func (a *ApiServer) CreateRouters(c *gin.Context) {
 		return
 	}
 
-	st := reflect.TypeOf(r)
-	field := st.Field(0)
-	item := form.Value[field.Tag.Get("json")]
-	for _, v := range item {
-		r.RouterSerial = v
+	items = form.Value[createRouterKey]
+	for _, v := range items {
+		err = json.Unmarshal([]byte(v), &r)
 		routers = append(routers, r)
 	}
 
@@ -306,7 +304,7 @@ func (a *ApiServer) GetRouters(c *gin.Context) {
 		r.RouterSerial = query.Get("id")
 		r, err = a.next.GetRouters(a.ctx, r, tenant)
 		if r.RouterSerial == "" {
-			c.JSON(http.StatusOK, nil)
+			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
 			c.JSON(http.StatusOK, r)
 		}
