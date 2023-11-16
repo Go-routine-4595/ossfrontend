@@ -48,9 +48,7 @@ func (a *ApiServer) Start() {
 	oss := router.Group("/api/v4/oss")
 	oss.Use(a.auth.AuthMiddleware())
 	oss.POST("/routers", a.CreateRouters)
-	oss.POST("/routersFromFile", a.CreateRoutersFromFile)
 	oss.DELETE("/routers", a.DeleteRouters)
-	oss.DELETE("/routerFromFile", a.DeleteRoutersFromFile)
 	oss.GET("/routers", a.GetRouters)
 
 	err := http.ListenAndServe(":"+a.port, router)

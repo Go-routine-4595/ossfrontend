@@ -10,11 +10,26 @@ import (
 )
 
 const (
-	messageGet = iota
-	messageGetPaged
-	messageCreate
-	messageDelete
+	messageGetRouter = iota + 100
+	messageGetPagedRouter
+	messageCreateRouter
+	messageDeleteRouter
+)
 
+const (
+	messageGetAccount = iota + 200
+	messageGetPagedAccount
+	messageCreateAccount
+	messageDeleteAccount
+	messageUpdateAccount
+)
+
+const (
+	messageCmdAssossiateAccountwithRouter = iota + 300
+	messageCmdAssossiateRouterwithAccount
+)
+
+const (
 	subjectRouter  = "ns.oss.router"
 	subjectAccount = "ns.oos.account"
 	timeout        = 5000    // ms
@@ -65,7 +80,7 @@ func (b *Broker) CreateRoutersRequest(r []domain.Router, tenant string) ([]byte,
 		return nil, errors.New("message size too large")
 	}
 
-	m.Mtype = messageCreate
+	m.Mtype = messageCreateRouter
 	m.Data = d
 	d, err = json.Marshal(m)
 	if err != nil {
@@ -76,7 +91,7 @@ func (b *Broker) CreateRoutersRequest(r []domain.Router, tenant string) ([]byte,
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(msg.Data))
+	//fmt.Println(string(msg.Data))
 
 	return msg.Data, nil
 }
@@ -85,7 +100,6 @@ func (b *Broker) DeleteRoutersRequest(r []domain.Router, tenant string) error {
 	var (
 		d   []byte
 		err error
-		msg *nats.Msg
 		m   message
 	)
 	d, err = json.Marshal(r)
@@ -96,19 +110,19 @@ func (b *Broker) DeleteRoutersRequest(r []domain.Router, tenant string) error {
 		return errors.New("message size too large")
 	}
 
-	m.Mtype = messageDelete
+	m.Mtype = messageDeleteRouter
 	m.Data = d
 	d, err = json.Marshal(m)
 	if err != nil {
 		return err
 	}
 
-	msg, err = b.con.Request(subjectRouter, d, time.Duration(time.Millisecond*timeout))
+	_, err = b.con.Request(subjectRouter, d, time.Duration(time.Millisecond*timeout))
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(string(msg.Data))
+	//fmt.Println(string(msg.Data))
 
 	return nil
 }
@@ -122,7 +136,7 @@ func (b *Broker) GetRoutersPage(paginationByte []byte, tenant string) (domain.Re
 		response domain.Response
 	)
 
-	m.Mtype = messageGetPaged
+	m.Mtype = messageGetPagedRouter
 	m.Data = paginationByte
 	d, err = json.Marshal(m)
 	if err != nil {
@@ -159,7 +173,7 @@ func (b *Broker) GetRouters(r domain.Router, tenant string) (domain.Router, erro
 		return ret, errors.New("message size too large")
 	}
 
-	m.Mtype = messageGet
+	m.Mtype = messageGetRouter
 	m.Data = d
 	d, err = json.Marshal(m)
 	if err != nil {
